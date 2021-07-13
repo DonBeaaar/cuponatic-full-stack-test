@@ -19,17 +19,41 @@ const useStyles = makeStyles({
     }
 });
 
-const Product = ({
-    titulo,
-    imagen,
-    valor_oferta,
-    valor_oferta_plano,
-    calificaciones
-}) => {
+const Product = ({ product, handleUpdateShoppingCart }) => {
     const classes = useStyles();
+
+    const {
+        id_descuento,
+        titulo,
+        imagen,
+        valor_oferta,
+        calificaciones
+    } = product;
+
+
+    const handleAddProductShoppingCart = () => {
+
+        const productsLocal = JSON.parse(localStorage.getItem('products'));
+
+        if (!productsLocal) {
+            localStorage.setItem('products', JSON.stringify([{ ...product, cantidad: 1 }]))
+        } else {
+            const productInLocal = productsLocal.find((product) => product.id_descuento === id_descuento);
+            const cantidad = (productInLocal) ? productInLocal.cantidad + 1 : 1
+
+            if (productInLocal) {
+                localStorage.setItem('products', JSON.stringify(productsLocal.map((product) => product.id_descuento === id_descuento ? { ...product, cantidad } : product)))
+            } else {
+                localStorage.setItem('products', JSON.stringify([...productsLocal, { ...product, cantidad }]))
+            }
+        }
+
+        handleUpdateShoppingCart()
+    }
+
     return (
         <Grid item xs={12} lg={3}>
-            <Card>
+            <Card style={{ height: 400 }}>
                 <CardActionArea>
                     <CardMedia
                         className={classes.media}
@@ -50,7 +74,7 @@ const Product = ({
                 </CardActionArea>
                 <CardActions>
                     <Box width={1} display="flex" flexDirection="row" justifyContent="center">
-                        <Button size="small" color="inherit" variant='contained'>
+                        <Button size="small" color="inherit" variant='contained' onClick={handleAddProductShoppingCart}>
                             Agregar
                         </Button>
                     </Box>
